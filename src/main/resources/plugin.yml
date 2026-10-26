@@ -1,0 +1,11 @@
+name: ChaosScoreboard
+version: 1.0.0
+main: com.chaossmp.scoreboard.ChaosScoreboard
+api-version: '1.21.11'
+author: ChaosSMP
+description: Custom ChaosSMP scoreboard
+commands:
+  sb:
+    description: Toggle the ChaosSMP scoreboard
+    usage: /sb
+    aliases: [scoreboard]
