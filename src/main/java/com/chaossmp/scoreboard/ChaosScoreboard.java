@@ -1,4 +1,3 @@
-```java
 package com.chaossmp.scoreboard;
 
 import org.bukkit.Bukkit;
@@ -132,4 +131,3 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
         return true;
     }
 }
-```
