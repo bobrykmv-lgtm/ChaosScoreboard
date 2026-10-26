@@ -45,16 +45,24 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
 
     @Override
     public void onDisable() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+        ScoreboardManager manager = Bukkit.getScoreboardManager();
+
+        if (manager != null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.setScoreboard(manager.getMainScoreboard());
+            }
         }
     }
 
     private void updateScoreboard(Player player) {
         ScoreboardManager manager = Bukkit.getScoreboardManager();
-        if (manager == null) return;
+
+        if (manager == null) {
+            return;
+        }
 
         Scoreboard board = manager.getNewScoreboard();
+
         Objective objective = board.registerNewObjective(
                 "chaos",
                 "dummy",
@@ -69,12 +77,15 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
 
         int deaths = player.getStatistic(Statistic.DEATHS);
         int kills = player.getStatistic(Statistic.PLAYER_KILLS);
-        int chaos = Math.max(0, kills * 10 - deaths * 2);
+
+        // Начальное значение хаоса — 0.
+        int chaos = 0;
 
         String[] lines = {
                 ChatColor.GRAY + "╭──────────────╮",
                 ChatColor.WHITE + "Ник: " + ChatColor.AQUA + player.getName(),
-                ChatColor.WHITE + "XYZ: " + ChatColor.YELLOW + x + " " + y + " " + z,
+                ChatColor.WHITE + "XYZ: " + ChatColor.YELLOW
+                        + x + " " + y + " " + z,
                 ChatColor.DARK_GRAY + "──────────────",
                 ChatColor.WHITE + "Смерти: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + "Киллы: " + ChatColor.GREEN + kills,
@@ -85,10 +96,14 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
         int score = lines.length;
 
         for (String line : lines) {
-            String entry = ChatColor.values()[score % ChatColor.values().length].toString();
+            String entry = ChatColor.values()[score].toString();
+
             Team team = board.registerNewTeam("line" + score);
             team.addEntry(entry);
-            team.setPrefix(line.length() > 64 ? line.substring(0, 64) : line);
+            team.setPrefix(line.length() > 64
+                    ? line.substring(0, 64)
+                    : line);
+
             objective.getScore(entry).setScore(score);
             score--;
         }
@@ -101,7 +116,9 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
         Player killer = event.getEntity().getKiller();
 
         if (killer != null) {
-            killer.sendMessage(ChatColor.GREEN + "+10 хаоса за убийство!");
+            killer.sendMessage(
+                    ChatColor.GREEN + "Убийство засчитано!"
+            );
         }
     }
 
@@ -113,7 +130,9 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
             String[] args
     ) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage("Эту команду может использовать только игрок.");
+            sender.sendMessage(
+                    "Эту команду может использовать только игрок."
+            );
             return true;
         }
 
@@ -121,11 +140,17 @@ public final class ChaosScoreboard extends JavaPlugin implements Listener {
 
         if (hidden.remove(uuid)) {
             updateScoreboard(player);
-            player.sendMessage(ChatColor.AQUA + "Скорборд включён.");
+            player.sendMessage(
+                    ChatColor.AQUA + "Скорборд включён."
+            );
         } else {
             hidden.add(uuid);
-            player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
-            player.sendMessage(ChatColor.GRAY + "Скорборд выключен.");
+            player.setScoreboard(
+                    Bukkit.getScoreboardManager().getMainScoreboard()
+            );
+            player.sendMessage(
+                    ChatColor.GRAY + "Скорборд выключен."
+            );
         }
 
         return true;
